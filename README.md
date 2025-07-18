@@ -1,534 +1,85 @@
-# Twitter
+# Node.js Twitter Auth API
 
-Given an `app.js` file and a database file `twitterClone.db` consisting of five tables `user`, `follower`, `tweet`, `reply`, and `like`.
+Hey! 👋 This is a simple backend API that works like a tiny version of Twitter.  
+Built with **Node.js**, **Express**, **SQLite**, and **JWT** for authentication.  
+Good for learning how real login, auth, followers, tweets, likes, and replies work behind the scenes.
 
-Write APIs to perform operations on the tables `user`, `follower`, `tweet`, `reply`, and `like` containing the following columns,
+---
 
-**User Table**
+## 📌 What’s Inside
 
-| Column   | Type    |
-| -------- | ------- |
-| user_id  | INTEGER |
-| name     | TEXT    |
-| username | TEXT    |
-| password | TEXT    |
-| gender   | TEXT    |
+- **Register & Login** — create a user, login, get a JWT token.
+- **Auth Middleware** — all private routes are protected with JWT. No token = no access.
+- **Follow System** — follow/unfollow people (using follower/following tables).
+- **Tweets** — post a tweet, get tweets, delete your own.
+- **Likes & Replies** — like a tweet, reply to a tweet, see who liked/replied.
+- **Feed** — see latest tweets from people you follow (limit 4).
 
-**Follower Table**
+---
 
-| Column              | Type    |
-| ------------------- | ------- |
-| `follower_id`       | INTEGER |
-| `follower_user_id`  | INTEGER |
-| `following_user_id` | INTEGER |
+## 🗂️ Tech Stack
 
-Here, if user1 follows user2 then,
+- Node.js
+- Express
+- SQLite
+- JWT (jsonwebtoken)
+- bcrypt for hashing passwords
+- Postman for testing
 
-`follower_user_id` is the user ID of user1 and `following_user_id` is the user ID of user2.
+---
 
-**Tweet Table**
+## 🔑 API Routes
 
-| Column    | Type     |
-| --------- | -------- |
-| tweet_id  | INTEGER  |
-| tweet     | TEXT     |
-| user_id   | INTEGER  |
-| date_time | DATETIME |
+| Method | Route | What It Does |
+| ------ | ----- | ------------- |
+| POST | `/register/` | Register a new user |
+| POST | `/login/` | Login, get JWT |
+| GET | `/user/tweets/feed/` | Get 4 latest tweets from followed users |
+| GET | `/user/following/` | Who you follow |
+| GET | `/user/followers/` | Who follows you |
+| GET | `/tweets/:tweetId/` | Get tweet details (likes, replies, date-time) |
+| GET | `/tweets/:tweetId/likes/` | Who liked the tweet |
+| GET | `/tweets/:tweetId/replies/` | Replies on the tweet |
+| GET | `/user/tweets/` | Get your tweets |
+| POST | `/user/tweets/` | Post a new tweet |
+| DELETE | `/tweets/:tweetId/` | Delete your tweet |
 
-**Reply Table**
+---
 
-| Column    | Type     |
-| --------- | -------- |
-| reply_id  | INTEGER  |
-| tweet_id  | INTEGER  |
-| reply     | TEXT     |
-| user_id   | INTEGER  |
-| date_time | DATETIME |
+## ⚙️ How to Run
 
-**Like Table**
+1. Clone this repo  
+2. `npm install`  
+3. `node app.js`  
+4. Open Postman → hit endpoints → use JWT for auth routes
 
-| Column    | Type     |
-| --------- | -------- |
-| like_id   | INTEGER  |
-| tweet_id  | INTEGER  |
-| user_id   | INTEGER  |
-| date_time | DATETIME |
+---
 
-#### Sample Valid User Credentials
+## 🧩 DB Structure
 
-```
-{
-  "username":"JoeBiden",
-  "password":"biden@123"
-}
-```
+This uses **SQLite** with 5 tables:
 
-<Section id="section1" >
+- `user`
+- `follower`
+- `tweet`
+- `reply`
+- `like`
 
-### API 1
+Proper foreign keys, relational queries, joins for followers, likes, feed, replies.
 
-#### Path: `/register/`
+---
 
-#### Method: `POST`
+## 🤝 Why I Built This
 
-**Request**
+Made this to practice building **secure auth**, **real SQL queries**, and **REST APIs**.  
+Good practice if you want to understand how social media backends work.
 
-```
-{
-  "username": "adam_richard",
-  "password": "richard_567",
-  "name": "Adam Richard",
-  "gender": "male"
-}
-```
+---
 
-- **Scenario 1**
+## 📝 Author
 
-  - **Description**:
+**Gnana Deepak Vardhan** — Node.js dev in the making.  
+Feel free to fork, use, or suggest improvements!
 
-    If the username already exists
+---
 
-  - **Response**
-    - **Status code**
-      ```
-      400
-      ```
-    - **Body**
-      ```
-      User already exists
-      ```
-
-- **Scenario 2**
-
-  - **Description**:
-
-    If the registrant provides a password with less than 6 characters
-
-  - **Response**
-    - **Status code**
-      ```
-      400
-      ```
-    - **Body**
-      ```
-      Password is too short
-      ```
-
-- **Scenario 3**
-
-  - **Description**:
-
-    Successful registration of the registrant
-
-  - **Response**
-
-    - **Status code**
-
-      ```
-      200
-      ```
-
-    - **Body**
-      ```
-      User created successfully
-      ```
-
-</Section>
-
-<Section id="section2">
-
-### API 2
-
-#### Path: `/login/`
-
-#### Method: `POST`
-
-**Request**
-
-```
-{
-  "username":"JoeBiden",
-  "password":"biden@123"
-}
-```
-
-- **Scenario 1**
-
-  - **Description**:
-
-    If the user doesn't have a Twitter account
-
-  - **Response**
-    - **Status code**
-      ```
-      400
-      ```
-    - **Body**
-      ```
-      Invalid user
-      ```
-
-- **Scenario 2**
-
-  - **Description**:
-
-    If the user provides an incorrect password
-
-  - **Response**
-    - **Status code**
-      ```
-      400
-      ```
-    - **Body**
-      ```
-      Invalid password
-      ```
-
-- **Scenario 3**
-
-  - **Description**:
-
-    Successful login of the user
-
-  - **Response**
-
-    Return the JWT Token
-
-    ```
-    {
-      "jwtToken": "ak2284ns8Di32......"
-    }
-    ```
-
-</Section>
-
-<Section id="authToken">
-
-### Authentication with JWT Token
-
-Write a middleware to authenticate the JWT token.
-
-- **Scenario 1**
-
-  - **Description**:
-
-    If the JWT token is not provided by the user or an invalid JWT token is provided
-
-  - **Response**
-    - **Status code**
-      ```
-      401
-      ```
-    - **Body**
-      ```
-      Invalid JWT Token
-      ```
-
-- **Scenario 2**
-  - After successful verification of JWT token, proceed to next middleware or handler
-
-</Section>
-
-<Section id="section3">
-
-### API 3
-
-#### Path: `/user/tweets/feed/`
-
-#### Method: `GET`
-
-#### Description:
-
-Returns the latest tweets of people whom the user follows. Return 4 tweets at a time
-
-#### Response
-
-```
- [
-   {
-      username: "SrBachchan",
-      tweet: "T 3859 - do something wonderful, people may imitate it ..",
-      dateTime: "2021-04-07 14:50:19"
-   },
-   ...
- ]
-```
-
-</Section>
-
-<Section id="section4">
-
-### API 4
-
-#### Path: `/user/following/`
-
-#### Method: `GET`
-
-#### Description:
-
-Returns the list of all names of people whom the user follows
-
-#### Response
-
-```
-[
-  {
-    "name": "Narendra Modi"
-  },
-  ...
-]
-```
-
-</Section>
-
-<Section id="section5">
-
-### API 5
-
-#### Path: `/user/followers/`
-
-#### Method: `GET`
-
-#### Description:
-
-Returns the list of all names of people who follows the user
-
-#### Response
-
-```
-[
-  {
-    "name": "Narendra Modi"
-  },
-  ...
-]
-```
-
-</Section>
-
-<Section id="section6">
-
-### API 6
-
-#### Path: `/tweets/:tweetId/`
-
-#### Method: `GET`
-
-- **Scenario 1**
-
-  - **Description**:
-
-    If the user requests a tweet other than the users he is following
-
-  - **Response**
-    - **Status code**
-      ```
-      401
-      ```
-    - **Body**
-      ```
-      Invalid Request
-      ```
-
-- **Scenario 2**
-
-  - **Description**:
-
-    If the user requests a tweet of the user he is following, return the tweet, likes count, replies count and date-time
-
-  - **Response**
-    ```
-    {
-       "tweet": "T 3859 - do something wonderful, people may imitate it ..",
-       "likes": 3,
-       "replies": 1,
-       "dateTime": "2021-04-07 14:50:19"
-    }
-    ```
-
-</Section>
-
-<Section id="section7">
-
-### API 7
-
-#### Path: `/tweets/:tweetId/likes/`
-
-#### Method: `GET`
-
-- **Scenario 1**
-
-  - **Description**:
-
-    If the user requests a tweet other than the users he is following
-
-  - **Response**
-    - **Status code**
-      ```
-      401
-      ```
-    - **Body**
-      ```
-      Invalid Request
-      ```
-
-- **Scenario 2**
-
-  - **Description**:
-
-    If the user requests a tweet of a user he is following, return the list of usernames who liked the tweet
-
-  - **Response**
-    ```
-    {
-       "likes": ["albert", ]
-    }
-    ```
-
-</Section>
-
-<Section id="section8">
-
-### API 8
-
-#### Path: `/tweets/:tweetId/replies/`
-
-#### Method: `GET`
-
-- **Scenario 1**
-
-  - **Description**:
-
-    If the user requests a tweet other than the users he is following
-
-  - **Response**
-    - **Status code**
-      ```
-      401
-      ```
-    - **Body**
-      ```
-      Invalid Request
-      ```
-
-- **Scenario 2**
-
-  - **Description**:
-
-    If the user requests a tweet of a user he is following, return the list of replies.
-
-  - **Response**
-
-        ```
-        {
-           "replies": [
-             {
-               "name": "Narendra Modi",
-               "reply": "When you see it.."
-              },
-            ...]
-        }
-        ```
-
-    </Section>
-
-<Section id="section9">
-
-### API 9
-
-#### Path: `/user/tweets/`
-
-#### Method: `GET`
-
-#### Description:
-
-Returns a list of all tweets of the user
-
-#### Response
-
-```
-[
-  {
-    "tweet": "Ready to don the Blue and Gold",
-    "likes": 3,
-    "replies": 4,
-    "dateTime": "2021-4-3 08:32:44"
-  },
-  ...
-]
-```
-
-</Section>
-
-<Section id="section10">
-
-### API 10
-
-#### Path: `/user/tweets/`
-
-#### Method: `POST`
-
-#### Description:
-
-Create a tweet in the tweet table
-
-#### Request
-
-```
-{
-   "tweet": "The Mornings..."
-}
-```
-
-#### Response
-
-```
-Created a Tweet
-```
-
-</Section>
-
-<Section id="section11">
-
-### API 11
-
-#### Path: `/tweets/:tweetId/`
-
-#### Method: `DELETE`
-
-- **Scenario 1**
-
-  - **Description**:
-
-    If the user requests to delete a tweet of other users
-
-  - **Response**
-    - **Status code**
-      ```
-      401
-      ```
-    - **Body**
-      ```
-      Invalid Request
-      ```
-
-- **Scenario 2**
-
-  - **Description**:
-
-    If the user deletes his tweet
-
-  - **Response**
-    ```
-    Tweet Removed
-    ```
-
-</Section>
-
-<br/>
-
-Use `npm install` to install the packages.
-
-**Export the express instance using the default export syntax.**
-
-**Use Common JS module syntax.**
